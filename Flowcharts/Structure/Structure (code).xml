@@ -1,0 +1,84 @@
+<mxfile host="app.diagrams.net" modified="2026-10-08T00:00:00.000Z" agent="Gemini" version="21.0.0" type="device">
+  <diagram id="Overview" name="System High-Level Overview">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <!-- Actors Container -->
+        <mxCell id="Actors" value="System Actors &amp; Roles" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0288d1;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="W" value="Worker" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;" vertex="1" parent="Actors">
+          <mxGeometry x="20" y="40" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SL" value="Site Leader" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;" vertex="1" parent="Actors">
+          <mxGeometry x="20" y="80" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="D" value="Driver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;" vertex="1" parent="Actors">
+          <mxGeometry x="20" y="120" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="M" value="Management / HR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;" vertex="1" parent="Actors">
+          <mxGeometry x="20" y="160" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="MT" value="Maintenance Staff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0288d1;" vertex="1" parent="Actors">
+          <mxGeometry x="20" y="200" width="160" height="30" as="geometry" />
+        </mxCell>
+        <!-- Mobile App Container -->
+        <mxCell id="Mobile" value="Cross-Platform Field Mobile App (Offline-First)" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="40" width="260" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="A1" value="Module A: Biometric Attendance" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;" vertex="1" parent="Mobile">
+          <mxGeometry x="20" y="40" width="220" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="A2" value="Module B: Site &amp; Shift Reporting" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;" vertex="1" parent="Mobile">
+          <mxGeometry x="20" y="85" width="220" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="A3" value="Module C: Fleet Accountability" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7b1fa2;" vertex="1" parent="Mobile">
+          <mxGeometry x="20" y="130" width="220" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="DB_Local" value="Local Storage &amp; Sync Queue" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#7b1fa2;" vertex="1" parent="Mobile">
+          <mxGeometry x="40" y="175" width="180" height="50" as="geometry" />
+        </mxCell>
+        <!-- Backend Infrastructure Container -->
+        <mxCell id="Backend" value="Central Backend &amp; Infrastructure" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#388e3c;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="40" width="220" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="API" value="Backend REST API &amp; Sync Engine" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#388e3c;" vertex="1" parent="Backend">
+          <mxGeometry x="20" y="40" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="DB_Central" value="Central Relational DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#388e3c;" vertex="1" parent="Backend">
+          <mxGeometry x="20" y="100" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ObjStore" value="Media Object Storage" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffffff;strokeColor=#388e3c;" vertex="1" parent="Backend">
+          <mxGeometry x="20" y="165" width="180" height="50" as="geometry" />
+        </mxCell>
+        <!-- Administrative Dashboard Container -->
+        <mxCell id="Dashboard" value="Administrative Web Dashboard" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="40" width="220" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="DashAtt" value="Attendance &amp; Hours" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f57c00;" vertex="1" parent="Dashboard">
+          <mxGeometry x="20" y="40" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DashRep" value="Report Archive" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f57c00;" vertex="1" parent="Dashboard">
+          <mxGeometry x="20" y="80" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DashFleet" value="Fleet Map &amp; History" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f57c00;" vertex="1" parent="Dashboard">
+          <mxGeometry x="20" y="120" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="DashFlags" value="Flagged Anomaly Queue" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#f57c00;" vertex="1" parent="Dashboard">
+          <mxGeometry x="20" y="160" width="180" height="30" as="geometry" />
+        </mxCell>
+        <!-- Connectors -->
+        <mxCell id="edge1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Actors" target="Mobile">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="Auto-Sync" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Mobile" target="Backend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Backend" target="Dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

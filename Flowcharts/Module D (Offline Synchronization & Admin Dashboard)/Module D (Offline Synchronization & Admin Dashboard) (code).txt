@@ -1,0 +1,61 @@
+flowchart TD
+    classDef startEnd fill:#cfd8dc,stroke:#37474f,stroke-width:2px;
+    classDef action fill:#bbdefb,stroke:#1976d2,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef failure fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#388e3c,stroke-width:2px;
+
+    subgraph OfflineSync["Offline Capture & Local Queue Engine"]
+        S1([Field Event Captured Offline]):::startEnd --> S2[Persist Complete Record to Local Storage Immediately]:::action
+        S2 --> S3[Assign Unique Stable Event Identifier]:::action
+        S3 --> S4[Add Record & Media Attachments to Local Synchronization Queue]:::action
+        S4 --> S5[Expose 'Pending Sync' Status on Mobile App UI]:::action
+
+        S5 --> D_Net{Network Connectivity Available?}:::decision
+        D_Net -- No --> S6[Retain Record in Queue; Continue Field Operations Offline]:::action
+        S6 --> D_Net
+
+        D_Net -- Yes --> S7[Initiate Auto-Sync Transmission to Backend API]:::action
+        S7 --> S8[Server Validates Record Integrity, Signatures & Idempotent Event ID]:::action
+
+        S8 --> D_Valid{Server Validation Passed?}:::decision
+
+        D_Valid -- Duplicate / Retransmission --> S9[Acknowledge Request; Ignore Duplicate Storage]:::success
+        D_Valid -- Rejected / Failed --> F_Sync[Mark Local Queue Item as Failed; Retain for Resolution]:::failure
+
+        D_Valid -- Yes / New Record --> S10[Persist Record in Central Relational DB & Media in Object Storage]:::success
+        S10 --> S11[Update Mobile Queue Status to 'Synchronized']:::success
+        S9 --> S11
+        S11 --> S12([Local Synchronization Complete]):::startEnd
+    end
+
+    subgraph AdminDashboard["Administrative Dashboard Oversight & Anomaly Management"]
+        D_Start([User Opens Web Dashboard]):::startEnd --> D_View{Select Dashboard View}:::decision
+
+        D_View -- Attendance --> V1[View Live Synchronized Attendance & Calculated Worked Hours]:::action
+        D_View -- Reports --> V2[Access Chronological Site Progress Report Archive]:::action
+        D_View -- Fleet --> V3[View Live Map Position of Open Sessions, Route History & Condition Log]:::action
+        D_View -- Audit Trail --> V4[Review Immutable Audit Trail for Site Creation & Modifications]:::action
+
+        D_View -- Flagged Events Queue --> V5[Inspect System Flagged Anomalies]:::action
+
+        V5 --> D_FlagType{Flagged Anomaly Category?}:::decision
+
+        D_FlagType -- Mock Location --> F_A1[Review Mock-Location Detection Context & GPS Data]:::failure
+        D_FlagType -- Failed Liveness --> F_A2[Review Failed Liveness Verification Attempts]:::failure
+        D_FlagType -- Missed Shift Report --> F_A3[Review Escalated Missed 12-Hour Shift Report Alert]:::failure
+        D_FlagType -- Incident / HSE --> F_A4[Review Incident / Equipment Failure Notes & Attachments]:::failure
+        D_FlagType -- Vehicle Fault --> F_A5[Review Vehicle Fault Alert & Inspection Evidence]:::failure
+
+        F_A1 --> AdmAct[Take Administrative Action e.g., Deactivate Site, Resolve Dispute, Dispatch Maintenance]:::action
+        F_A2 --> AdmAct
+        F_A3 --> AdmAct
+        F_A4 --> AdmAct
+        F_A5 --> AdmAct
+
+        V1 --> D_End([Dashboard Oversight Complete]):::startEnd
+        V2 --> D_End
+        V3 --> D_End
+        V4 --> D_End
+        AdmAct --> D_End
+    end

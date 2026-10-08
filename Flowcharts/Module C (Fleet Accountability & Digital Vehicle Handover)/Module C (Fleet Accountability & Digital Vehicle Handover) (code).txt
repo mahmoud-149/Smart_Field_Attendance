@@ -1,0 +1,63 @@
+flowchart TD
+    classDef startEnd fill:#cfd8dc,stroke:#37474f,stroke-width:2px;
+    classDef action fill:#bbdefb,stroke:#1976d2,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef failure fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#388e3c,stroke-width:2px;
+
+    subgraph VehicleClaim["Phase 1: Vehicle Claim"]
+        C1([Driver Scans Vehicle QR Code]):::startEnd --> C2[Resolve Vehicle Identifier from QR Code Data]:::action
+        C2 --> D_Claim{Vehicle Currently Available?}:::decision
+        D_Claim -- No / Active Session Exists --> F_Claim[Reject Claim: Vehicle Already in Use]:::failure
+        F_Claim --> C_End1([Claim Terminated]):::startEnd
+
+        D_Claim -- Yes --> C3[Create Vehicle Session: Driver ID, Vehicle ID, Start Timestamp]:::action
+        C3 --> C4[Update Vehicle Status to 'In Use']:::action
+        C4 --> C5([Custody Session Opened - Trip Start Gated]):::startEnd
+    end
+
+    subgraph PreTrip["Phase 2: Mandatory Pre-Trip Inspection Gating"]
+        P1([Initiate Pre-Trip Inspection]):::startEnd --> P2[Capture 4 Exterior Photos: Front, Rear, Left, Right]:::action
+        P2 --> P3[Capture Dashboard Photo: Odometer & Fuel Level]:::action
+        P3 --> P4[Bind Evidence to Vehicle ID, GPS Position & Timestamp]:::action
+        P4 --> D_Warn{Active Warning Lights or Visible Pre-Existing Damage?}:::decision
+
+        D_Warn -- Yes --> P5[Require Mandatory Text Description or Voice Note]:::action
+        D_Warn -- No --> P6[Confirm Pre-Trip Inspection Answers]:::action
+        P5 --> P6
+
+        P6 --> D_Gate{All Mandatory Photos & Explanations Present?}:::decision
+        D_Gate -- No --> F_Gate[Keep Trip Start Disabled]:::failure
+        F_Gate --> P1
+
+        D_Gate -- Yes --> P7[Enable Trip Start Action]:::success
+        P7 --> P8([Trip Ready to Begin]):::startEnd
+    end
+
+    subgraph ActiveTrip["Phase 3: Operational Trip & Route Tracking"]
+        T1([Driver Starts Trip]):::startEnd --> T2[Begin Active Route Tracking under Open Custody Session]:::action
+        T2 --> T3[Record Operational Route Coordinates & Distance]:::action
+        T3 --> T4[Buffer Route Points Locally if Network Offline]:::action
+        T4 --> T5([Vehicle Arrives at Destination]):::startEnd
+    end
+
+    subgraph PostTrip["Phase 4: Post-Trip Inspection, Fault Escalation & Release"]
+        E1([Driver Initiates Vehicle Release]):::startEnd --> E2[Capture Mandatory Final Odometer Photo]:::action
+        E2 --> E3[Calculate Custody Distance Driven from Odometer Readings]:::action
+        E3 --> D_Fault{Mechanical Issues, Unusual Noises, or Accidents Occurred?}:::decision
+
+        D_Fault -- Yes --> E4[Require Mandatory Text Description or Voice Note]:::action
+        E4 --> E5[Raise Maintenance Fault Alert on Dashboard]:::failure
+        E5 --> E6[Bind Post-Trip Evidence to Session]:::action
+
+        D_Fault -- No --> E6
+        E6 --> D_Release{Post-Trip Inspection Requirements Complete?}:::decision
+
+        D_Release -- No --> F_Rel[Block Vehicle Release Action]:::failure
+        F_Rel --> E1
+
+        D_Release -- Yes --> E7[Stop Route Tracking & Close Vehicle Session]:::action
+        E7 --> E8[Store Summary: Origin, Route, Destination, Total Distance & Duration]:::action
+        E8 --> E9[Update Vehicle Status back to 'Available']:::success
+        E9 --> E10([Vehicle Custody Released]):::startEnd
+    end

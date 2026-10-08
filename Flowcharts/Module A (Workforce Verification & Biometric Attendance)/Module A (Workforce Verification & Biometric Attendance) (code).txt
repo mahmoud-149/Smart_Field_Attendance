@@ -1,0 +1,53 @@
+flowchart TD
+    classDef startEnd fill:#cfd8dc,stroke:#37474f,stroke-width:2px;
+    classDef action fill:#bbdefb,stroke:#1976d2,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef failure fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#388e3c,stroke-width:2px;
+
+    subgraph Enrollment["Worker Biometric Enrollment (One-Time)"]
+        E1([Start Enrollment]):::startEnd --> E2[Capture Facial Samples under Varying Conditions]:::action
+        E2 --> E3[Generate Numerical Face Embedding on Device]:::action
+        E3 --> E4[Link Face Embedding to Worker Identifier]:::action
+        E4 --> E5[Discard Raw Facial Enrollment Photographs]:::action
+        E5 --> E6([Enrollment Complete]):::startEnd
+    end
+
+    subgraph Attendance["Attendance Check-In / Check-Out Verification Flow"]
+        A1([Worker Initiates Attendance Event]):::startEnd --> A2[Obtain Device GPS Location & Target Site Assignment]:::action
+        A2 --> D1{Inside Assigned Active Site Geofence?}:::decision
+
+        D1 -- No --> F1[Reject: Worker Outside Geofence]:::failure
+        D1 -- Yes --> D2{OS Mock-Location Provider Detected?}:::decision
+
+        D2 -- Yes --> F2[Reject: Flag Event as Suspicious Fraud]:::failure
+        D2 -- No --> A3[Prompt Worker for Active Liveness Challenge]:::action
+
+        A3 --> D3{Liveness Action Passed?}:::decision
+        D3 -- No --> F3[Reject: Liveness Challenge Failed]:::failure
+
+        D3 -- Yes --> A4[Capture Live Face & Generate Live Embedding]:::action
+        A4 --> A5[Compare Live Embedding with Enrolled Reference Embedding]:::action
+        A5 --> D4{Similarity Score >= Threshold?}:::decision
+
+        D4 -- No --> F4[Reject: Face Match Failed]:::failure
+        D4 -- Yes --> A6[Accept Verified Attendance Event]:::success
+
+        A6 --> D5{Event Type?}:::decision
+        D5 -- Check-In --> A7[Record Verified Check-In with GPS, Timestamp, Site ID & Verification Context]:::action
+        D5 -- Check-Out --> A8[Record Verified Check-Out & Link to Previous Verified Check-In]:::action
+
+        A8 --> A9[Calculate Measured Interval Worked Hours]:::action
+        A9 --> A10[Derive Overtime against Configured Site Shift Schedule]:::action
+
+        A7 --> A11[Write Complete Record to Local Device Storage Immediately]:::action
+        A10 --> A11
+        A11 --> A12[Queue Event for Automatic Synchronization Engine]:::action
+        A12 --> A13([Attendance Flow Complete]):::startEnd
+
+        F1 --> F5[Display Failure Category Message to Worker]:::failure
+        F2 --> F5
+        F3 --> F5
+        F4 --> F5
+        F5 --> A14([Event Terminated - No Verified Event Constructed]):::startEnd
+    end
