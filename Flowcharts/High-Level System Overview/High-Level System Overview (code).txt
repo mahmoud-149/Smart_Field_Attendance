@@ -1,0 +1,53 @@
+flowchart TD
+    classDef actor fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef mobile fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef backend fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef dashboard fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+
+    subgraph Actors["System Actors & Roles"]
+        W[Worker]:::actor
+        SL[Site Leader / Supervisor]:::actor
+        D[Driver]:::actor
+        M[Management / HR Admin]:::actor
+        MT[Maintenance Staff]:::actor
+    end
+
+    subgraph FieldApp["Cross-Platform Field Mobile App (Offline-First)"]
+        A1[Module A: Biometric Attendance]:::mobile
+        A2[Module B: Site & Shift Reporting]:::mobile
+        A3[Module C: Fleet Accountability]:::mobile
+        DB_Local[(Local Storage & Sync Queue)]:::mobile
+    end
+
+    subgraph ServerBackend["Central Backend & Storage Infrastructure"]
+        API[Backend REST API & Sync Engine]:::backend
+        DB_Central[(Central Relational Database)]:::backend
+        ObjStore[(Media & Attachment Object Storage)]:::backend
+    end
+
+    subgraph WebAdmin["Module D: Web Administrative Dashboard"]
+        DashAtt[Attendance & Worked Hours Review]:::dashboard
+        DashRep[Site Progress Report Archive]:::dashboard
+        DashFleet[Fleet Tracking & Condition History]:::dashboard
+        DashFlags[Flagged Anomaly Review Queue]:::dashboard
+    end
+
+    W -->|1. Perform Check-In / Check-Out| A1
+    SL -->|2. Create Site / Submit 12h Report| A2
+    D -->|3. QR Claim / Inspections / Trip / Release| A3
+
+    A1 -->|Persist Locally| DB_Local
+    A2 -->|Persist Locally| DB_Local
+    A3 -->|Persist Locally| DB_Local
+
+    DB_Local -->|Auto-Sync When Network Connected| API
+    API --> DB_Central
+    API --> ObjStore
+
+    API --> DashAtt
+    API --> DashRep
+    API --> DashFleet
+    API --> DashFlags
+
+    M -->|Deactivate Sites / Review Flagged Events| WebAdmin
+    MT -->|Review Vehicle Fault Alerts| DashFleet

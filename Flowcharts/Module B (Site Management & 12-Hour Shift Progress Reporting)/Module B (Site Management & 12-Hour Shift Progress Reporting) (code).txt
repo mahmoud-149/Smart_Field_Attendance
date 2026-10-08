@@ -1,0 +1,50 @@
+flowchart TD
+    classDef startEnd fill:#cfd8dc,stroke:#37474f,stroke-width:2px;
+    classDef action fill:#bbdefb,stroke:#1976d2,stroke-width:2px;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef failure fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px;
+    classDef success fill:#c8e6c9,stroke:#388e3c,stroke-width:2px;
+
+    subgraph SiteCreation["Site Creation & Governance"]
+        S1([Site Leader Starts Site Creation]):::startEnd --> D_Role{Has Authorized Site Leader Role?}:::decision
+        D_Role -- No --> F_Role[Deny Site Creation Access]:::failure
+        D_Role -- Yes --> S2[Select Site Center Method: Device GPS Position OR Interactive Map Pin]:::action
+        S2 --> S3[Set Geofence Radius, Site Name & Assign Authorized Workers]:::action
+        S3 --> S4[Validate Data & Activate Site]:::action
+        S4 --> S5[Write Immutable Creation Entry to Audit Log with Actor ID & Timestamp]:::action
+        S5 --> S6([Site Active for Worker Attendance]):::startEnd
+
+        M1([Management Initiates Site Deactivation]):::startEnd --> M2[Deactivate Site on Administrative Dashboard]:::action
+        M2 --> M3[Write Deactivation Entry to Immutable Audit Log]:::action
+        M3 --> M4([Site Deactivated: Rejects New Attendance Geofence Checks]):::startEnd
+    end
+
+    subgraph ShiftReporting["12-Hour Shift Progress Reporting Flow"]
+        R1([Shift Reporting Window Opens Trigger]):::startEnd --> R2[Notify Assigned Site Leader]:::action
+        R2 --> R3[Site Leader Opens Structured 12-Hour Report Form]:::action
+        R3 --> R4[Auto-Populate Shift ID, Site ID, Date, Cycle & Verified Manpower Count]:::action
+        R4 --> R5[Input Mandatory Fields: Work Completed Text & Numeric Depth/Progress Metric]:::action
+        R5 --> R6[Select Equipment Status & Enter Explanatory Notes]:::action
+        R6 --> R7[Indicate HSE/Incident Status & Delay Causes]:::action
+        R7 --> R8[Optionally Attach Progress Photos and/or Voice Note]:::action
+
+        R8 --> D_Submit{Submit Before Window Closes?}:::decision
+
+        D_Submit -- No / Window Expired --> Esc1[System Escalates Missed Report Event to Management]:::failure
+        Esc1 --> Esc2[Flag Missed Reporting Window Anomaly on Web Dashboard]:::failure
+        Esc2 --> Esc3([Reporting Window Closed - Missed]):::startEnd
+
+        D_Submit -- Yes --> D_Val{All Required Fields Present & Valid?}:::decision
+        D_Val -- No --> F_Val[Block Submission & Highlight Missing Required Fields]:::failure
+        F_Val --> R5
+
+        D_Val -- Yes --> R9[Timestamp & Bind Report to Submitting Site Leader ID]:::action
+        R9 --> R10[Save Report to Local Device Queue]:::action
+        R10 --> D_Inc{HSE Incident or Equipment Failure Reported?}:::decision
+
+        D_Inc -- Yes --> Flag_R[Surface Report for Immediate Administrative Attention Priority]:::failure
+        D_Inc -- No --> Standard_R[Queue Report for Standard Background Synchronization]:::success
+
+        Flag_R --> R11([Report Submitted & Locally Queued]):::startEnd
+        Standard_R --> R11
+    end
